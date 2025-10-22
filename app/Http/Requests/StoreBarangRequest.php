@@ -15,11 +15,10 @@ class StoreBarangRequest extends FormRequest
     {
         return [
             'nama' => 'required|string|max:255',
-            'katagori_id' => 'required|exists:katagoris,id',
+            'katagori_id' => 'required|integer|exists:katagoris,id',
             'stok' => 'required|integer|min:0',
-            'harga' => 'required|integer|min:0',
-            'deskripsi' => 'nullable|string',
-            'user_id' => 'required|exists:users,id',
+            'harga' => 'required|numeric|min:0',
+            'user_id' => 'required|integer|exists:users,id',
         ];
     }
 }

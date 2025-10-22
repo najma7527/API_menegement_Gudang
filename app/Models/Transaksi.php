@@ -9,5 +9,15 @@ class Transaksi extends Model
     protected $fillable = [
         'barang_id', 'jumlah', 'total_harga', 'tipe_transaksi', 'harga_satuan', 'tanggal', 'keterangan', 'user_id'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function barang()
+    {
+        return $this->belongsTo(Barang::class);
+    }
     //
 }
