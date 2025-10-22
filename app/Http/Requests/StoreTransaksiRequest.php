@@ -20,6 +20,8 @@ class StoreTransaksiRequest extends FormRequest
             'tipe_transaksi' => 'required|string',
             'harga_satuan' => 'required|integer|min:0',
             'tanggal' => 'required|date',
+            'keterangan' => 'nullable|string',
+            'user_id' => 'required|exists:users,id',
         ];
     }
 }

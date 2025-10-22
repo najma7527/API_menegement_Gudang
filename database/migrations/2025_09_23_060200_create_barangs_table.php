@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nama');
             $table->unsignedBigInteger('katagori_id');
+            $table->unsignedBigInteger('user_id');
             $table->integer('stok')->default(0);
             $table->string('satuan')->nullable();
             $table->decimal('harga', 12, 2)->default(0);

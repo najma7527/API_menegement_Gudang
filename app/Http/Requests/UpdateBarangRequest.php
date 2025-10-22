@@ -18,6 +18,8 @@ class UpdateBarangRequest extends FormRequest
             'katagori_id' => 'sometimes|required|exists:katagoris,id',
             'stok' => 'sometimes|required|integer|min:0',
             'harga' => 'sometimes|required|integer|min:0',
+            'deskripsi' => 'nullable|string',
+            'user_id' => 'sometimes|required|exists:users,id',
         ];
     }
 }

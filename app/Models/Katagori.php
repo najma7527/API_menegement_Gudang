@@ -7,5 +7,5 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Katagori extends Model
 {
     use HasFactory;
-    protected $fillable = ['nama', "deskripsi", "warna"];
+    protected $fillable = ['nama', "deskripsi", "warna", 'user_id'];
 }

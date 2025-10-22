@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController; 
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login',    [AuthController::class, 'login']);
@@ -12,10 +13,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // contoh endpoint protected
-    Route::get('/profile', function (Request $request) {
+    Route::get('/profil', function (Request $request) {
         return $request->user();
     });
+    
 });
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/profile/photo', [ProfileController::class, 'updatePhoto']);
+    Route::post('/profile/update', [ProfileController::class, 'update']);
+    Route::get('/profile', [ProfileController::class, 'show']);
+});
+
 
 
 Route::get('/test-connection', function () {

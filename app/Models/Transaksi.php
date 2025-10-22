@@ -7,7 +7,7 @@ class Transaksi extends Model
 {
     use \Illuminate\Database\Eloquent\Factories\HasFactory;
     protected $fillable = [
-        'barang_id', 'jumlah', 'total_harga', 'tipe_transaksi', 'harga_satuan', 'tanggal'
+        'barang_id', 'jumlah', 'total_harga', 'tipe_transaksi', 'harga_satuan', 'tanggal', 'keterangan', 'user_id'
     ];
     //
 }

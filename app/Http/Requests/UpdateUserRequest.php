@@ -14,7 +14,7 @@ class UpdateUserRequest extends FormRequest
 
     public function rules()
     {
-        $userId = $this->route('id'); // ambil ID dari route parameter
+        $userId = $this->route('id'); 
 
         return [
             'name'     => 'sometimes|required|string|max:255',
@@ -27,6 +27,7 @@ class UpdateUserRequest extends FormRequest
                 Rule::unique('users', 'email')->ignore($userId),
             ],
             'password' => 'nullable|string|min:8|confirmed',
+            'profile_photo'    => 'nullable|url',
         ];
     }
 
@@ -39,6 +40,7 @@ class UpdateUserRequest extends FormRequest
             'email.unique'      => 'Email sudah terdaftar.',
             'password.min'      => 'Password minimal 8 karakter.',
             'password.confirmed'=> 'Konfirmasi password tidak sesuai.',
+            'photo.url'         => 'URL foto profil tidak valid.',
         ];
     }
 }

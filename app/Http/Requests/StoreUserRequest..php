@@ -18,6 +18,7 @@ class StoreUserRequest extends FormRequest
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
+            'profile_photo'    => 'nullable|url',
         ];
     }
 
@@ -31,6 +32,7 @@ class StoreUserRequest extends FormRequest
             'password.required' => 'Password wajib diisi.',
             'password.min'      => 'Password minimal 8 karakter.',
             'password.confirmed'=> 'Konfirmasi password tidak sesuai.',
+            'photo.url'         => 'URL foto profil tidak valid.',
         ];
     }
 }

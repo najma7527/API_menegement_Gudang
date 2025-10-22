@@ -18,6 +18,8 @@ class StoreBarangRequest extends FormRequest
             'katagori_id' => 'required|exists:katagoris,id',
             'stok' => 'required|integer|min:0',
             'harga' => 'required|integer|min:0',
+            'deskripsi' => 'nullable|string',
+            'user_id' => 'required|exists:users,id',
         ];
     }
 }
