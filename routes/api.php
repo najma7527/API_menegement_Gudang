@@ -4,29 +4,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController; 
+use App\Http\Controllers\BarangController;
+use App\Http\Controllers\KatagoriController; // Perhatikan nama controller
+use App\Http\Controllers\TransaksiController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login',    [AuthController::class, 'login']);
 
-// route yang butuh auth
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-
-    // contoh endpoint protected
-    Route::get('/profil', function (Request $request) {
-        return $request->user();
-    });
-    
-});
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/profile/photo', [ProfileController::class, 'updatePhoto']);
-    Route::post('/profile/update', [ProfileController::class, 'update']);
-    Route::get('/profile', [ProfileController::class, 'show']);
-});
-
-
-
+// Test connection
 Route::get('/test-connection', function () {
     return response()->json([
         'status' => 'success',
@@ -43,8 +28,41 @@ Route::post('/test-post', function (Request $request) {
     ]);
 });
 
-// Route CRUD Anda
-Route::apiResource('barang', \App\Http\Controllers\BarangController::class);
-Route::apiResource('katagori', \App\Http\Controllers\KatagoriController::class);
-Route::apiResource('transaksi', \App\Http\Controllers\TransaksiController::class);
-Route::apiResource('user', \App\Http\Controllers\UserController::class);
+// 🔥 PERBAIKI: Group semua route yang butuh auth dalam SATU group
+Route::middleware('auth:sanctum')->group(function () {
+    // Auth routes
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Profile routes
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::post('/profile/update', [ProfileController::class, 'update']);
+    Route::post('/profile/photo', [ProfileController::class, 'updatePhoto']);
+
+    // Contoh endpoint protected
+    Route::get('/profil', function (Request $request) {
+        return $request->user();
+    });
+
+    // 🔥 PERBAIKI: Konsistensi penulisan "katagori" (dengan A)
+    // Route untuk barang
+    Route::get('/barang', [BarangController::class, 'index']);
+    Route::get('/barang/user/{userId}', [BarangController::class, 'getByUser']);
+    Route::post('/barang', [BarangController::class, 'store']);
+    Route::put('/barang/{id}', [BarangController::class, 'update']);
+    Route::delete('/barang/{id}', [BarangController::class, 'destroy']);
+
+    // 🔥 PERBAIKI: Gunakan "katagori" secara konsisten (sesuai dengan yang diakses Flutter)
+    Route::get('/katagori', [KatagoriController::class, 'index']);
+    Route::get('/katagori/user/{userId}', [KatagoriController::class, 'getByUser']);
+    Route::post('/katagori', [KatagoriController::class, 'store']);
+    Route::put('/katagori/{id}', [KatagoriController::class, 'update']);
+    Route::delete('/katagori/{id}', [KatagoriController::class, 'destroy']);
+    // Route untuk transaksi
+    Route::get('/transaksi', [TransaksiController::class, 'index']);
+    Route::get('/transaksi/user/{userId}', [TransaksiController::class, 'getByUser']);
+    Route::post('/transaksi', [TransaksiController::class, 'store']);
+    Route::put('/transaksi/{id}', [TransaksiController::class, 'update']);
+    Route::delete('/transaksi/{id}', [TransaksiController::class, 'destroy']);
+});
+
+// Jika ada route lain yang tidak butuh auth, taruh di sini

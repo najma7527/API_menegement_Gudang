@@ -12,9 +12,14 @@ class TransaksiService
         $this->transaksiRepository = $transaksiRepository;
     }
 
-    public function getAllTransaksi()
+     public function getAllTransaksi($userId = null)
     {
-        return $this->transaksiRepository->all();
+        return $this->transaksiRepository->all($userId);
+    }
+
+    public function getTransaksiByUserId($userId)
+    {
+        return $this->transaksiRepository->getByUserId($userId);
     }
 
     public function getTransaksiById($id)

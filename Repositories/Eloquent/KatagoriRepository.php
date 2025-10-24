@@ -6,10 +6,18 @@ use Repositories\Interfaces\KatagoriInterface;
 
 class KatagoriRepository implements KatagoriInterface
 {
-	public function all()
-	{
-		return katagori::all();
-	}
+	 public function all($userId = null)
+    {
+        if ($userId) {
+            return Katagori::where('user_id', $userId)->get();
+        }
+        return Katagori::all();
+    }
+
+	 public function getByUserId($userId)
+    {
+        return Katagori::where('user_id', $userId)->get();
+    }
 
 	public function find($id)
 	{

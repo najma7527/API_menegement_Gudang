@@ -12,9 +12,14 @@ class BarangService
         $this->barangRepository = $barangRepository;
     }
 
-    public function getAllBarang()
+     public function getAllBarang($userId = null)
     {
-        return $this->barangRepository->all();
+        return $this->barangRepository->all($userId);
+    }
+
+    public function getBarangByUserId($userId)
+    {
+        return $this->barangRepository->getByUserId($userId);
     }
 
     public function getBarangById($id)

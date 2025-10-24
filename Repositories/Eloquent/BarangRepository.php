@@ -6,10 +6,18 @@ use Repositories\Interfaces\BarangRepositoryInterface;
 
 class BarangRepository implements BarangRepositoryInterface
 {
-	public function all()
-	{
-	return Barang::all();
-	}
+	 public function all($userId = null)
+    {
+        if ($userId) {
+            return Barang::where('user_id', $userId)->get();
+        }
+        return Barang::all();
+    }
+
+	 public function getByUserId($userId)
+    {
+        return Barang::where('user_id', $userId)->get();
+    }
 
 	public function find($id)
 	{

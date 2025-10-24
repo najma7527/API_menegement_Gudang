@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreBarangRequest;
 use App\Http\Requests\UpdateBarangRequest;
 use App\Services\BarangService;
+use Illuminate\Http\Request;
 
 class BarangController extends Controller
 {
@@ -15,10 +16,46 @@ class BarangController extends Controller
         $this->barangService = $barangService;
     }
 
-    public function index()
+     public function index(Request $request)
     {
-        $data = $this->barangService->getAllBarang();
-        return response()->json($data);
+        try {
+            // Jika ada parameter user_id, filter by user
+            if ($request->has('user_id') && $request->user_id) {
+                $data = $this->barangService->getBarangByUserId($request->user_id);
+            } else {
+                // Jika tidak ada parameter, ambil semua (atau bisa juga berdasarkan user yang login)
+                $data = $this->barangService->getAllBarang();
+            }
+            
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+                'message' => 'Data barang berhasil diambil'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data barang: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getByUser($userId)
+    {
+        try {
+            $data = $this->barangService->getBarangByUserId($userId);
+            
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+                'message' => 'Data barang user berhasil diambil'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data barang user: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function show($id)

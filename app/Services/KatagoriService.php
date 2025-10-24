@@ -12,10 +12,15 @@ class KatagoriService
 		$this->katagoriRepository = $katagoriRepository;
 	}
 
-	public function getAllKatagori()
-	{
-		return $this->katagoriRepository->all();
-	}
+	 public function getAllKatagori($userId = null)
+    {
+        return $this->katagoriRepository->all($userId);
+    }
+
+    public function getKatagoriByUserId($userId)
+    {
+        return $this->katagoriRepository->getByUserId($userId);
+    }
 
 	public function getKatagoriById($id)
 	{

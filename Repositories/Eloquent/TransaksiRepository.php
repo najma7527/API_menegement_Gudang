@@ -2,13 +2,22 @@
 namespace Repositories\Eloquent;
 
 use App\Models\transaksi;
+use App\Models\Transaksi as ModelsTransaksi;
 use Repositories\Interfaces\CrudInterface;
 
 class TransaksiRepository implements CrudInterface
 {
-    public function all()
+     public function all($userId = null)
     {
-        return transaksi::all();
+        if ($userId) {
+            return Transaksi::where('user_id', $userId)->get();
+        }
+        return Transaksi::all();
+    }
+
+	 public function getByUserId($userId)
+    {
+        return Transaksi::where('user_id', $userId)->get();
     }
 
     public function find($id)
