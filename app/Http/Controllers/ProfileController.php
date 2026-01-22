@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -13,22 +12,28 @@ class ProfileController extends Controller
 {
     public function __construct()
     {
-        // Kosong: tanpa middleware
+        
     }
 
     public function show(Request $request)
-    {
-        $user = $request->user();
-        
-        // Pastikan URL foto profil lengkap
-        if ($user->profile_photo) {
-            if (!str_starts_with($user->profile_photo, 'http')) {
-                $user->profile_photo = asset('storage/' . $user->profile_photo);
-            }
+{
+    $user = $request->user();
+    
+    $base64Image = null;
+    if ($user->profile_photo) {
+        $path = $user->profile_photo;
+        if (Storage::disk('public')->exists($path)) {
+            $imageContent = Storage::disk('public')->get($path);
+            $base64Image = 'data:image/jpeg;base64,' . base64_encode($imageContent);
         }
-        
-        return response()->json(['user' => $user]);
     }
+    
+    return response()->json([
+        'user' => array_merge($user->toArray(), [
+            'profile_photo_base64' => $base64Image,
+        ]),
+    ]);
+}
 
     public function update(Request $request)
     {
@@ -37,7 +42,7 @@ class ProfileController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'profile_photo' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+            'profile_photo' => 'nullable|file|mimes:jpg,jpeg,png|max:5120', // 5MB
         ]);
 
         if ($validator->fails()) {
@@ -51,12 +56,15 @@ class ProfileController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
 
-        // Handle upload foto
+        // Handle upload foto profil
         if ($request->hasFile('profile_photo')) {
             // Hapus foto lama jika ada
             if ($user->profile_photo) {
-                $oldPhotoPath = str_replace(asset('storage/'), '', $user->profile_photo);
-                if (Storage::disk('public')->exists($oldPhotoPath)) {
+                $oldPhotoPath = $user->profile_photo;
+                
+                // Hanya hapus jika file ada di storage lokal
+                if (!str_starts_with($oldPhotoPath, 'http') && 
+                    Storage::disk('public')->exists($oldPhotoPath)) {
                     Storage::disk('public')->delete($oldPhotoPath);
                 }
             }
@@ -69,10 +77,8 @@ class ProfileController extends Controller
 
         $user->save();
 
-        // Pastikan URL lengkap untuk response
-        $user->profile_photo = $user->profile_photo 
-            ? asset('storage/' . $user->profile_photo)
-            : null;
+        // Reload user untuk mendapatkan profile_photo_url terbaru
+        $user->refresh();
 
         return response()->json([
             'message' => 'Profil berhasil diperbarui',
@@ -82,44 +88,64 @@ class ProfileController extends Controller
 
     public function updatePhoto(Request $request)
     {
-        $authHeader = $request->header('Authorization');
-        $user = $this->getUserFromToken($authHeader);
+        $user = $request->user();
 
-        if (!$user) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+        $validator = Validator::make($request->all(), [
+            'profile_photo' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-        if (!$request->hasFile('profile_photo')) {
-            return response()->json(['message' => 'Tidak ada foto dikirim'], 400);
+        // Hapus foto lama jika ada
+        if ($user->profile_photo) {
+            $oldPhotoPath = $user->profile_photo;
+            if (!str_starts_with($oldPhotoPath, 'http') && 
+                Storage::disk('public')->exists($oldPhotoPath)) {
+                Storage::disk('public')->delete($oldPhotoPath);
+            }
         }
 
-        $path = $request->file('profile_photo')->store('profile_photos', 'public');
+        // Simpan foto baru
+        $file = $request->file('profile_photo');
+        $path = $file->store('profile_photos', 'public');
+        $user->profile_photo = $path;
+        $user->save();
 
-        $userModel = User::find($user->id);
-        $userModel->profile_photo = $path;
-        $userModel->save();
+        // Reload untuk mendapatkan URL lengkap
+        $user->refresh();
 
         return response()->json([
             'message' => 'Foto profil berhasil diperbarui',
-            'photo_url' => asset('storage/' . $path),
+            'user' => $user,
         ]);
     }
 
-    // 🔍 Ambil user dari token (tanpa middleware sanctum)
-    private function getUserFromToken($authHeader)
+    /**
+     * Hapus foto profil
+     */
+    public function deletePhoto(Request $request)
     {
-        if (!$authHeader || !str_contains($authHeader, 'Bearer ')) {
-            return null;
+        $user = $request->user();
+
+        if ($user->profile_photo) {
+            $oldPhotoPath = $user->profile_photo;
+            if (!str_starts_with($oldPhotoPath, 'http') && 
+                Storage::disk('public')->exists($oldPhotoPath)) {
+                Storage::disk('public')->delete($oldPhotoPath);
+            }
+            
+            $user->profile_photo = null;
+            $user->save();
         }
 
-        $token = str_replace('Bearer ', '', $authHeader);
-
-        $user = DB::table('personal_access_tokens')
-            ->join('users', 'users.id', '=', 'personal_access_tokens.tokenable_id')
-            ->where('personal_access_tokens.token', hash('sha256', $token))
-            ->select('users.*')
-            ->first();
-
-        return $user;
+        return response()->json([
+            'message' => 'Foto profil berhasil dihapus',
+            'user' => $user,
+        ]);
     }
 }

@@ -5,8 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController; 
 use App\Http\Controllers\BarangController;
-use App\Http\Controllers\KatagoriController; // Perhatikan nama controller
+use App\Http\Controllers\KatagoriController; 
 use App\Http\Controllers\TransaksiController;
+use Illuminate\Support\Facades\Storage;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login',    [AuthController::class, 'login']);
@@ -64,5 +65,3 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/transaksi/{id}', [TransaksiController::class, 'update']);
     Route::delete('/transaksi/{id}', [TransaksiController::class, 'destroy']);
 });
-
-// Jika ada route lain yang tidak butuh auth, taruh di sini
